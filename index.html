@@ -3,403 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kettlebell M.A.P. Calculator</title>
+    <title>Combat Conditioning MAP Calculator</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@400;600;800&display=swap');
-
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #050505;
-            color: #e5e5e5;
-            background-image: 
-                radial-gradient(circle at 15% 50%, rgba(255, 99, 0, 0.04) 0%, transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(255, 99, 0, 0.04) 0%, transparent 25%);
+            background-color: #0f172a;
+            color: #f8fafc;
         }
-
-        .mono {
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .tactical-border {
-            border: 1px solid #27272a;
-            position: relative;
-            background: linear-gradient(180deg, rgba(24, 24, 27, 0.9) 0%, rgba(9, 9, 11, 0.9) 100%);
-            backdrop-filter: blur(10px);
-        }
-
-        .tactical-border::before {
-            content: ''; position: absolute; top: -1px; left: -1px; width: 12px; height: 12px;
-            border-top: 2px solid #ff6300; border-left: 2px solid #ff6300;
-        }
-
-        .tactical-border::after {
-            content: ''; position: absolute; bottom: -1px; right: -1px; width: 12px; height: 12px;
-            border-bottom: 2px solid #ff6300; border-right: 2px solid #ff6300;
-        }
-
-        .tab-btn {
-            background-color: transparent;
-            color: #71717a;
-            border-bottom: 2px solid transparent;
-            transition: all 0.2s ease;
-        }
-        .tab-btn.active {
-            color: #ff6300;
-            border-bottom: 2px solid #ff6300;
-        }
-
-        .input-field {
-            background-color: #000000;
-            border: 1px solid #3f3f46;
-            color: #ffffff;
-            transition: border-color 0.2s;
-        }
-        .input-field:focus {
-            outline: none;
-            border-color: #ff6300;
-        }
-
-        /* Metronome Pulse Animation */
-        @keyframes pulse-ring {
-            0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(255, 99, 0, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(255, 99, 0, 0); }
-            100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(255, 99, 0, 0); }
-        }
-        .metronome-active .indicator {
-            animation: pulse-ring 1s infinite;
-            background-color: #ff6300;
-        }
-
-        .value-display {
-            font-size: 3.5rem;
-            line-height: 1;
-            font-weight: 800;
-            color: #ffffff;
-            text-shadow: 0 0 20px rgba(255, 99, 0, 0.3);
+        .card {
+            background-color: #1e293b;
+            border: 1px solid #334155;
         }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8 selection:bg-[#ff6300] selection:text-black">
+<body class="min-h-screen flex items-center justify-center p-4">
 
-    <!-- HEADER -->
-    <header class="max-w-6xl mx-auto mb-8">
-        <div class="tactical-border p-6 shadow-2xl">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
-                <div>
-                    <h1 class="text-3xl md:text-4xl font-black text-white tracking-tighter uppercase">
-                        <i class="fas fa-wave-square mr-3 text-[#ff6300]"></i>Kinetic M.A.P. Engine
-                    </h1>
-                    <p class="text-zinc-400 text-sm mt-2 mono">MAXIMUM AEROBIC POWER // BALLISTIC ALGORITHM</p>
-                </div>
-                <div class="mt-4 md:mt-0 text-right">
-                    <span class="text-xs border border-[#ff6300] text-[#ff6300] px-3 py-1.5 rounded animate-pulse font-bold tracking-widest bg-[#ff6300]/10">
-                        SYSTEM ONLINE
-                    </span>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <main class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        <!-- LEFT COLUMN: CONTROLS & TABS -->
-        <div class="lg:col-span-2 space-y-6">
-            
-            <!-- TABS -->
-            <div class="flex space-x-6 border-b border-zinc-800 px-2">
-                <button onclick="switchTab('low-tech')" id="tab-low-tech" class="tab-btn active pb-3 px-2 text-sm font-bold tracking-widest uppercase">
-                    Protocol A: Metronome (SPM)
-                </button>
-                <button onclick="switchTab('high-tech')" id="tab-high-tech" class="tab-btn pb-3 px-2 text-sm font-bold tracking-widest uppercase">
-                    Protocol B: Enode (VBT)
-                </button>
-            </div>
-
-            <!-- PROTOCOL A: LOW TECH -->
-            <div id="panel-low-tech" class="tactical-border p-6 space-y-8 block">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    
-                    <!-- Bio-Metrics -->
-                    <div class="space-y-4">
-                        <h3 class="text-xs font-bold text-zinc-500 uppercase tracking-widest border-b border-zinc-800 pb-2">1. Athlete Telemetry</h3>
-                        
-                        <div>
-                            <label class="block text-xs text-zinc-400 mb-1">Kettlebell Weight (kg)</label>
-                            <input type="number" id="kbWeightA" value="24" class="input-field w-full rounded p-3 text-lg mono font-bold" oninput="calculateLowTech()">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs text-zinc-400 mb-1">Athlete Height (cm)</label>
-                            <div class="flex space-x-2">
-                                <input type="number" id="athleteHeight" value="180" class="input-field w-2/3 rounded p-3 text-lg mono font-bold" oninput="estimateArc()">
-                                <button onclick="estimateArc()" class="w-1/3 bg-zinc-800 hover:bg-zinc-700 text-xs font-bold rounded transition-colors text-white">ESTIMATE ARC</button>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs text-zinc-400 mb-1">Vertical Arc Distance (meters)</label>
-                            <input type="number" step="0.01" id="arcDistance" value="0.75" class="input-field w-full rounded p-3 text-lg mono font-bold" oninput="calculateLowTech()">
-                            <p class="text-[10px] text-zinc-500 mt-1"><i class="fas fa-info-circle text-[#ff6300] mr-1"></i> Vertical distance from bottom of hinge to chest height float.</p>
-                        </div>
-                    </div>
-
-                    <!-- Performance Data -->
-                    <div class="space-y-4">
-                        <h3 class="text-xs font-bold text-zinc-500 uppercase tracking-widest border-b border-zinc-800 pb-2">2. Test Results</h3>
-                        
-                        <div>
-                            <label class="block text-xs text-[#ff6300] mb-1 font-bold">Max Swings Per Minute (SPM)</label>
-                            <input type="number" id="spmA" value="24" class="input-field w-full rounded p-3 text-2xl mono font-bold text-[#ff6300]" oninput="calculateLowTech()">
-                            <p class="text-[10px] text-zinc-500 mt-1">The highest SPM sustained for 2 mins before HR spike.</p>
-                        </div>
-
-                        <div class="pt-4">
-                            <label class="block text-xs text-zinc-500 mb-1 uppercase tracking-widest">Calculated Wattage</label>
-                            <div id="resultA" class="value-display mono mt-2">-- W</div>
-                            <p class="text-[10px] text-zinc-500 mt-2">Formula: ((Mass × 9.81 × Distance) × SPM) ÷ 60</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- PROTOCOL B: HIGH TECH -->
-            <div id="panel-high-tech" class="tactical-border p-6 space-y-8 hidden">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    
-                    <div class="space-y-4">
-                        <h3 class="text-xs font-bold text-zinc-500 uppercase tracking-widest border-b border-zinc-800 pb-2">1. IMU Telemetry</h3>
-                        
-                        <div>
-                            <label class="block text-xs text-zinc-400 mb-1">Kettlebell Weight (kg)</label>
-                            <input type="number" id="kbWeightB" value="24" class="input-field w-full rounded p-3 text-lg mono font-bold" oninput="calculateHighTech()">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs text-zinc-400 mb-1">Mean Propulsive Velocity (m/s)</label>
-                            <input type="number" step="0.01" id="velocityB" value="1.20" class="input-field w-full rounded p-3 text-lg mono font-bold" oninput="calculateHighTech()">
-                            <p class="text-[10px] text-zinc-500 mt-1">Sustained velocity recorded via Enode/VBT sensor.</p>
-                        </div>
-                    </div>
-
-                    <div class="space-y-4">
-                        <h3 class="text-xs font-bold text-zinc-500 uppercase tracking-widest border-b border-zinc-800 pb-2">2. Power Output</h3>
-                        
-                        <div class="pt-4">
-                            <label class="block text-xs text-zinc-500 mb-1 uppercase tracking-widest">Calculated Wattage</label>
-                            <div id="resultB" class="value-display mono mt-2">-- W</div>
-                            <p class="text-[10px] text-zinc-500 mt-2">Formula: (Mass × 9.81) × Velocity (m/s)</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+    <div class="card max-w-md w-full rounded-xl shadow-2xl p-6 md:p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-extrabold tracking-tight text-white mb-2">M.A.P. ZONE CALCULATOR</h1>
+            <p class="text-sm text-slate-400">Treigning Lab & Aerobic Capacity Protocol</p>
         </div>
 
-        <!-- RIGHT COLUMN: METRONOME & GUIDE -->
         <div class="space-y-6">
-            
-            <!-- METRONOME -->
-            <div class="tactical-border p-6" id="metronome-card">
-                <h2 class="text-sm font-bold text-white uppercase tracking-widest mb-4 flex items-center">
-                    <i class="fas fa-stopwatch text-[#ff6300] mr-2"></i> Pacing Metronome
-                </h2>
-                
-                <div class="flex items-center justify-between mb-6 bg-zinc-900 p-4 rounded border border-zinc-800">
-                    <div class="flex flex-col">
-                        <span class="text-xs text-zinc-500 font-bold uppercase">Target SPM</span>
-                        <input type="number" id="metroSPM" value="15" class="bg-transparent text-3xl font-black text-white w-20 focus:outline-none mono" onchange="updateMetronomeInterval()">
-                    </div>
-                    <div class="indicator w-4 h-4 rounded-full bg-zinc-700 transition-colors"></div>
+            <!-- Equipment Selector -->
+            <div>
+                <label class="block text-sm font-semibold text-slate-300 mb-2">Select Modality</label>
+                <div class="flex gap-2">
+                    <button id="btn-yosuda" class="flex-1 py-3 px-4 rounded-lg bg-blue-600 text-white font-semibold text-sm transition hover:bg-blue-500 border-2 border-blue-500 focus:outline-none" onclick="setMode('yosuda')">Yosuda (RPM)</button>
+                    <button id="btn-kb" class="flex-1 py-3 px-4 rounded-lg bg-slate-700 text-slate-300 font-semibold text-sm transition hover:bg-slate-600 border-2 border-transparent focus:outline-none" onclick="setMode('kb')">Kettlebell (SPM)</button>
                 </div>
-
-                <div class="grid grid-cols-2 gap-3 mb-6">
-                    <button onclick="setMetronome(15)" class="bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-xs font-bold py-2 rounded transition-colors">15 SPM (Stage 1)</button>
-                    <button onclick="setMetronome(20)" class="bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-xs font-bold py-2 rounded transition-colors">20 SPM (Stage 2)</button>
-                    <button onclick="setMetronome(24)" class="bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-xs font-bold py-2 rounded transition-colors">24 SPM (Stage 3)</button>
-                    <button onclick="setMetronome(30)" class="bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-xs font-bold py-2 rounded transition-colors">30 SPM (Stage 4)</button>
-                </div>
-
-                <button id="metroToggle" onclick="toggleMetronome()" class="w-full bg-[#ff6300] hover:bg-[#e65a00] text-black font-black uppercase tracking-widest py-4 rounded transition-colors flex justify-center items-center">
-                    <i class="fas fa-play mr-2" id="metroIcon"></i> <span id="metroText">Start Metronome</span>
-                </button>
             </div>
 
-            <!-- RAMP PROTOCOL GUIDE -->
-            <div class="tactical-border p-6 bg-zinc-900/50">
-                <h3 class="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4">Ramp Protocol Reference</h3>
-                <div class="space-y-3">
-                    <div class="flex justify-between items-center text-sm border-b border-zinc-800 pb-2">
-                        <span class="text-zinc-300 font-bold">Stage 1</span>
-                        <span class="text-[#ff6300] mono">15 SPM (4.0s)</span>
-                    </div>
-                    <div class="flex justify-between items-center text-sm border-b border-zinc-800 pb-2">
-                        <span class="text-zinc-300 font-bold">Stage 2</span>
-                        <span class="text-[#ff6300] mono">20 SPM (3.0s)</span>
-                    </div>
-                    <div class="flex justify-between items-center text-sm border-b border-zinc-800 pb-2">
-                        <span class="text-zinc-300 font-bold">Stage 3</span>
-                        <span class="text-[#ff6300] mono">24 SPM (2.5s)</span>
-                    </div>
-                    <div class="flex justify-between items-center text-sm">
-                        <span class="text-zinc-300 font-bold">Stage 4</span>
-                        <span class="text-[#ff6300] mono">30 SPM (2.0s)</span>
-                    </div>
-                </div>
-                <p class="text-[10px] text-zinc-500 mt-4 italic">Terminate test when technique breaks, metronome pace is lost, or HR spikes exponentially.</p>
+            <!-- Input Field -->
+            <div>
+                <label id="input-label" class="block text-sm font-semibold text-slate-300 mb-2">Maximum Aerobic Power (Max RPM)</label>
+                <input type="number" id="map-input" placeholder="e.g., 60" class="w-full bg-slate-800 border border-slate-600 rounded-lg py-3 px-4 text-white text-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition placeholder-slate-500">
             </div>
 
+            <button onclick="calculateZones()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg shadow-emerald-900/20">
+                Calculate Training Zones
+            </button>
         </div>
-    </main>
+
+        <!-- Results Section -->
+        <div id="results" class="mt-8 hidden">
+            <h2 class="text-lg font-bold border-b border-slate-700 pb-2 mb-4 text-slate-200">Your Training Zones</h2>
+            
+            <div class="space-y-3">
+                <div class="bg-slate-800 rounded-lg p-3 border-l-4 border-slate-500 flex justify-between items-center">
+                    <div>
+                        <p class="text-xs text-slate-400 font-bold uppercase">Recovery / Flush (60-70%)</p>
+                        <p class="text-sm text-slate-300">Nasal Breathing Only</p>
+                    </div>
+                    <div class="text-xl font-black text-slate-300" id="zone-1"></div>
+                </div>
+
+                <div class="bg-slate-800 rounded-lg p-3 border-l-4 border-blue-500 flex justify-between items-center">
+                    <div>
+                        <p class="text-xs text-blue-400 font-bold uppercase">Aerobic Base (70-80%)</p>
+                        <p class="text-sm text-slate-300">All-Day Pace</p>
+                    </div>
+                    <div class="text-xl font-black text-blue-400" id="zone-2"></div>
+                </div>
+
+                <div class="bg-slate-800 rounded-lg p-3 border-l-4 border-yellow-500 flex justify-between items-center">
+                    <div>
+                        <p class="text-xs text-yellow-400 font-bold uppercase">Lactate Threshold (80-90%)</p>
+                        <p class="text-sm text-slate-300">Sustain for 20-30 mins</p>
+                    </div>
+                    <div class="text-xl font-black text-yellow-400" id="zone-3"></div>
+                </div>
+
+                <div class="bg-slate-800 rounded-lg p-3 border-l-4 border-orange-500 flex justify-between items-center">
+                    <div>
+                        <p class="text-xs text-orange-400 font-bold uppercase">M.A.P. / VO2 Max (90-100%)</p>
+                        <p class="text-sm text-slate-300">2-3 min intervals</p>
+                    </div>
+                    <div class="text-xl font-black text-orange-400" id="zone-4"></div>
+                </div>
+
+                <div class="bg-slate-800 rounded-lg p-3 border-l-4 border-red-500 flex justify-between items-center">
+                    <div>
+                        <p class="text-xs text-red-400 font-bold uppercase">Alactic Sprints (120-150%)</p>
+                        <p class="text-sm text-slate-300">8-10 sec Max Power</p>
+                    </div>
+                    <div class="text-xl font-black text-red-400" id="zone-5"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // --- CALCULATION LOGIC ---
-        
-        // Protocol A: Low Tech (Work = F * d, Power = (Work * SPM) / 60)
-        function calculateLowTech() {
-            const mass = parseFloat(document.getElementById('kbWeightA').value) || 0;
-            const spm = parseFloat(document.getElementById('spmA').value) || 0;
-            const distance = parseFloat(document.getElementById('arcDistance').value) || 0;
-            
-            // F = m * a (9.81 gravity)
-            const force = mass * 9.81;
-            // Work per rep = F * d
-            const work = force * distance;
-            // Power (Watts) = Total Work per minute / 60 seconds
-            const power = (work * spm) / 60;
-            
-            document.getElementById('resultA').innerText = power > 0 ? power.toFixed(1) + " W" : "-- W";
-        }
+        let currentMode = 'yosuda';
 
-        // Estimate Arc Distance based on Height
-        // Approximation: Arc distance is roughly 40-42% of total height (from below knees to chest, minus arm length)
-        function estimateArc() {
-            const heightCm = parseFloat(document.getElementById('athleteHeight').value) || 0;
-            if(heightCm > 0) {
-                const arcMeters = (heightCm * 0.42) / 100;
-                document.getElementById('arcDistance').value = arcMeters.toFixed(2);
-                calculateLowTech();
-            }
-        }
+        function setMode(mode) {
+            currentMode = mode;
+            const btnYosuda = document.getElementById('btn-yosuda');
+            const btnKb = document.getElementById('btn-kb');
+            const inputLabel = document.getElementById('input-label');
+            const inputField = document.getElementById('map-input');
 
-        // Protocol B: High Tech (Power = F * v)
-        function calculateHighTech() {
-            const mass = parseFloat(document.getElementById('kbWeightB').value) || 0;
-            const velocity = parseFloat(document.getElementById('velocityB').value) || 0;
-            
-            const force = mass * 9.81;
-            const power = force * velocity;
-            
-            document.getElementById('resultB').innerText = power > 0 ? power.toFixed(1) + " W" : "-- W";
-        }
-
-        // --- TAB LOGIC ---
-        function switchTab(tabName) {
-            document.getElementById('tab-low-tech').classList.remove('active');
-            document.getElementById('tab-high-tech').classList.remove('active');
-            document.getElementById('panel-low-tech').classList.add('hidden');
-            document.getElementById('panel-high-tech').classList.add('hidden');
-
-            if(tabName === 'low-tech') {
-                document.getElementById('tab-low-tech').classList.add('active');
-                document.getElementById('panel-low-tech').classList.remove('hidden');
-            } else {
-                document.getElementById('tab-high-tech').classList.add('active');
-                document.getElementById('panel-high-tech').classList.remove('hidden');
-            }
-        }
-
-        // --- METRONOME LOGIC ---
-        let audioCtx;
-        let isPlaying = false;
-        let metronomeIntervalId;
-
-        function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if(audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-        }
-
-        function playBeep() {
-            if(!audioCtx) return;
-            
-            const osc = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            
-            osc.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            
-            osc.type = 'sine';
-            // High pitch beep
-            osc.frequency.setValueAtTime(880, audioCtx.currentTime); 
-            
-            // Envelope to prevent clicking
-            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-            gainNode.gain.linearRampToValueAtTime(1, audioCtx.currentTime + 0.01);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
-            
-            osc.start(audioCtx.currentTime);
-            osc.stop(audioCtx.currentTime + 0.1);
-
-            // Visual indicator pulse
-            const card = document.getElementById('metronome-card');
-            card.classList.remove('metronome-active');
-            void card.offsetWidth; // trigger reflow
-            card.classList.add('metronome-active');
-            setTimeout(() => card.classList.remove('metronome-active'), 200);
-        }
-
-        function setMetronome(spm) {
-            document.getElementById('metroSPM').value = spm;
-            if(isPlaying) {
-                updateMetronomeInterval();
-            }
-        }
-
-        function updateMetronomeInterval() {
-            if(isPlaying) {
-                clearInterval(metronomeIntervalId);
-                const spm = parseFloat(document.getElementById('metroSPM').value) || 15;
-                const intervalMs = (60 / spm) * 1000;
-                metronomeIntervalId = setInterval(playBeep, intervalMs);
-            }
-        }
-
-        function toggleMetronome() {
-            const btnIcon = document.getElementById('metroIcon');
-            const btnText = document.getElementById('metroText');
-            
-            if (!isPlaying) {
-                initAudio();
-                const spm = parseFloat(document.getElementById('metroSPM').value) || 15;
-                const intervalMs = (60 / spm) * 1000;
+            if (mode === 'yosuda') {
+                btnYosuda.classList.replace('bg-slate-700', 'bg-blue-600');
+                btnYosuda.classList.replace('border-transparent', 'border-blue-500');
+                btnYosuda.classList.replace('text-slate-300', 'text-white');
                 
-                // Play first beep immediately
-                playBeep();
-                metronomeIntervalId = setInterval(playBeep, intervalMs);
-                
-                btnIcon.classList.replace('fa-play', 'fa-stop');
-                btnText.innerText = "Stop Metronome";
-                document.getElementById('metroToggle').classList.replace('bg-[#ff6300]', 'bg-red-600');
-                document.getElementById('metroToggle').classList.replace('hover:bg-[#e65a00]', 'hover:bg-red-700');
-                isPlaying = true;
+                btnKb.classList.replace('bg-blue-600', 'bg-slate-700');
+                btnKb.classList.replace('border-blue-500', 'border-transparent');
+                btnKb.classList.replace('text-white', 'text-slate-300');
+
+                inputLabel.innerText = "Maximum Aerobic Power (Max RPM)";
+                inputField.placeholder = "e.g., 60";
             } else {
-                clearInterval(metronomeIntervalId);
-                btnIcon.classList.replace('fa-stop', 'fa-play');
-                btnText.innerText = "Start Metronome";
-                document.getElementById('metroToggle').classList.replace('bg-red-600', 'bg-[#ff6300]');
-                document.getElementById('metroToggle').classList.replace('hover:bg-red-700', 'hover:bg-[#e65a00]');
-                isPlaying = false;
+                btnKb.classList.replace('bg-slate-700', 'bg-blue-600');
+                btnKb.classList.replace('border-transparent', 'border-blue-500');
+                btnKb.classList.replace('text-slate-300', 'text-white');
+                
+                btnYosuda.classList.replace('bg-blue-600', 'bg-slate-700');
+                btnYosuda.classList.replace('border-blue-500', 'border-transparent');
+                btnYosuda.classList.replace('text-white', 'text-slate-300');
+
+                inputLabel.innerText = "Maximum Aerobic Power (Max SPM)";
+                inputField.placeholder = "e.g., 30";
             }
         }
 
-        // Initial Calculations
-        estimateArc();
-        calculateHighTech();
+        function calculateZones() {
+            const input = parseFloat(document.getElementById('map-input').value);
+            if (isNaN(input) || input <= 0) {
+                alert("Please enter a valid number.");
+                return;
+            }
+
+            const unit = currentMode === 'yosuda' ? 'RPM' : 'SPM';
+
+            // Calculations based on % of MAP
+            const z1_min = Math.round(input * 0.60);
+            const z1_max = Math.round(input * 0.70);
+            
+            const z2_min = Math.round(input * 0.70);
+            const z2_max = Math.round(input * 0.80);
+            
+            const z3_min = Math.round(input * 0.80);
+            const z3_max = Math.round(input * 0.90);
+            
+            const z4_min = Math.round(input * 0.90);
+            const z4_max = Math.round(input * 1.00);
+
+            const z5_min = Math.round(input * 1.20);
+            const z5_max = Math.round(input * 1.50);
+
+            document.getElementById('zone-1').innerText = `${z1_min}-${z1_max} ${unit}`;
+            document.getElementById('zone-2').innerText = `${z2_min}-${z2_max} ${unit}`;
+            document.getElementById('zone-3').innerText = `${z3_min}-${z3_max} ${unit}`;
+            document.getElementById('zone-4').innerText = `${z4_min}-${z4_max} ${unit}`;
+            document.getElementById('zone-5').innerText = `${z5_min}-${z5_max} ${unit}`;
+
+            document.getElementById('results').classList.remove('hidden');
+        }
     </script>
 </body>
 </html>
