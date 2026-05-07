@@ -3,166 +3,526 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Combat Conditioning MAP Calculator</title>
+    <title>OP: BIOENERGETICS // MAP CALCULATOR</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orange: {
+                            500: '#ff6300',
+                            600: '#e65a00',
+                        },
+                        zinc: {
+                            850: '#1f1f22',
+                            900: '#18181b',
+                            950: '#09090b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@400;600;700&display=swap');
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0f172a;
-            color: #f8fafc;
+            background-color: #000000;
+            color: #e5e5e5;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 99, 0, 0.03) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(255, 99, 0, 0.03) 0%, transparent 20%);
         }
-        .card {
-            background-color: #1e293b;
-            border: 1px solid #334155;
+
+        h1, h2, h3, .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .tactical-border {
+            border: 1px solid #27272a;
+            position: relative;
+            background: rgba(24, 24, 27, 0.7);
+            backdrop-filter: blur(10px);
+        }
+
+        .tactical-border::before {
+            content: '';
+            position: absolute;
+            top: -1px; left: -1px;
+            width: 8px; height: 8px;
+            border-top: 2px solid #ff6300;
+            border-left: 2px solid #ff6300;
+        }
+
+        .tactical-border::after {
+            content: '';
+            position: absolute;
+            bottom: -1px; right: -1px;
+            width: 8px; height: 8px;
+            border-bottom: 2px solid #ff6300;
+            border-right: 2px solid #ff6300;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #09090b; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #ff6300; }
+
+        .modality-btn {
+            border: 1px solid #3f3f46;
+            color: #a1a1aa;
+            transition: all 0.2s;
+        }
+        .modality-btn.active {
+            background-color: rgba(255, 99, 0, 0.1);
+            border-color: #ff6300;
+            color: #ff6300;
+            font-weight: bold;
+        }
+
+        .tab-btn {
+            color: #71717a;
+            border-bottom: 2px solid transparent;
+            padding-bottom: 0.5rem;
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            color: #ffffff;
+            border-bottom: 2px solid #ff6300;
+        }
+
+        .pulse-fast { animation: pulse-fast 1s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse-fast { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+
+        input[type="number"]::-webkit-inner-spin-button, 
+        input[type="number"]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; margin: 0; 
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen p-4 md:p-8 selection:bg-orange-500 selection:text-black">
 
-    <div class="card max-w-md w-full rounded-xl shadow-2xl p-6 md:p-8">
-        <div class="text-center mb-8">
-            <h1 class="text-2xl font-extrabold tracking-tight text-white mb-2">M.A.P. ZONE CALCULATOR</h1>
-            <p class="text-sm text-slate-400">Treigning Lab & Aerobic Capacity Protocol</p>
-        </div>
-
-        <div class="space-y-6">
-            <!-- Equipment Selector -->
-            <div>
-                <label class="block text-sm font-semibold text-slate-300 mb-2">Select Modality</label>
-                <div class="flex gap-2">
-                    <button id="btn-yosuda" class="flex-1 py-3 px-4 rounded-lg bg-blue-600 text-white font-semibold text-sm transition hover:bg-blue-500 border-2 border-blue-500 focus:outline-none" onclick="setMode('yosuda')">Yosuda (RPM)</button>
-                    <button id="btn-kb" class="flex-1 py-3 px-4 rounded-lg bg-slate-700 text-slate-300 font-semibold text-sm transition hover:bg-slate-600 border-2 border-transparent focus:outline-none" onclick="setMode('kb')">Kettlebell (SPM)</button>
-                </div>
+    <!-- HEADER -->
+    <header class="max-w-6xl mx-auto mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="tactical-border p-6 md:col-span-2">
+            <div class="flex justify-between items-start mb-2">
+                <h1 class="text-2xl md:text-3xl font-bold text-white tracking-tighter uppercase">
+                    <i class="fas fa-wave-square mr-2 text-orange-500"></i>Bioenergetic Console
+                </h1>
+                <span class="text-xs border border-orange-500 text-orange-500 px-2 py-1 rounded animate-pulse font-bold tracking-widest hidden md:inline-block">LIVE M.A.P. ENGINE</span>
             </div>
-
-            <!-- Input Field -->
-            <div>
-                <label id="input-label" class="block text-sm font-semibold text-slate-300 mb-2">Maximum Aerobic Power (Max RPM)</label>
-                <input type="number" id="map-input" placeholder="e.g., 60" class="w-full bg-slate-800 border border-slate-600 rounded-lg py-3 px-4 text-white text-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition placeholder-slate-500">
-            </div>
-
-            <button onclick="calculateZones()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg shadow-emerald-900/20">
-                Calculate Training Zones
-            </button>
+            <p class="text-zinc-400 text-sm">NLC PERFORMANCE // MAXIMUM AEROBIC POWER CALCULATOR</p>
         </div>
+        <div class="tactical-border p-6 flex flex-col justify-center items-center text-center">
+            <span class="text-xs text-zinc-500 font-bold tracking-widest uppercase mb-1">System Status</span>
+            <div class="text-orange-500 font-bold mono tracking-widest"><i class="fas fa-circle text-[10px] pulse-fast mr-2"></i>AWAITING DATA</div>
+        </div>
+    </header>
 
-        <!-- Results Section -->
-        <div id="results" class="mt-8 hidden">
-            <h2 class="text-lg font-bold border-b border-slate-700 pb-2 mb-4 text-slate-200">Your Training Zones</h2>
+    <!-- MAIN DASHBOARD -->
+    <main class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- LEFT PANEL: INPUTS & TOOLS -->
+        <div class="lg:col-span-4 space-y-6">
             
-            <div class="space-y-3">
-                <div class="bg-slate-800 rounded-lg p-3 border-l-4 border-slate-500 flex justify-between items-center">
-                    <div>
-                        <p class="text-xs text-slate-400 font-bold uppercase">Recovery / Flush (60-70%)</p>
-                        <p class="text-sm text-slate-300">Nasal Breathing Only</p>
-                    </div>
-                    <div class="text-xl font-black text-slate-300" id="zone-1"></div>
+            <!-- Modality Selector & Input -->
+            <div class="tactical-border p-5">
+                <h2 class="mono text-sm font-bold text-zinc-400 mb-4 tracking-widest uppercase">01. Select Modality</h2>
+                <div class="flex space-x-2 mb-6">
+                    <button id="btn-yosuda" onclick="setModality('yosuda')" class="modality-btn active flex-1 py-3 rounded text-sm mono">YOSUDA (RPM)</button>
+                    <button id="btn-kb" onclick="setModality('kb')" class="modality-btn flex-1 py-3 rounded text-sm mono">KETTLEBELL</button>
                 </div>
 
-                <div class="bg-slate-800 rounded-lg p-3 border-l-4 border-blue-500 flex justify-between items-center">
-                    <div>
-                        <p class="text-xs text-blue-400 font-bold uppercase">Aerobic Base (70-80%)</p>
-                        <p class="text-sm text-slate-300">All-Day Pace</p>
+                <div class="mb-6">
+                    <label id="input-label" class="block mono text-xs font-bold text-zinc-400 mb-2 uppercase">Max Aerobic Power (RPM)</label>
+                    <div class="relative">
+                        <input type="number" id="map-input" placeholder="e.g. 60" class="w-full bg-zinc-950 border border-zinc-700 rounded py-3 px-4 text-white text-xl mono focus:border-orange-500 focus:outline-none transition-colors text-center shadow-inner">
+                        <span id="input-unit" class="absolute right-4 top-3.5 text-zinc-500 font-bold mono">RPM</span>
                     </div>
-                    <div class="text-xl font-black text-blue-400" id="zone-2"></div>
                 </div>
 
-                <div class="bg-slate-800 rounded-lg p-3 border-l-4 border-yellow-500 flex justify-between items-center">
-                    <div>
-                        <p class="text-xs text-yellow-400 font-bold uppercase">Lactate Threshold (80-90%)</p>
-                        <p class="text-sm text-slate-300">Sustain for 20-30 mins</p>
+                <button onclick="calculateMAP()" class="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold mono py-3 rounded transition-colors shadow-[0_0_15px_rgba(255,99,0,0.3)]">
+                    CALCULATE ZONES
+                </button>
+            </div>
+
+            <!-- METRONOME TOOL (Hidden for Yosuda) -->
+            <div id="metronome-card" class="tactical-border p-5 hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="mono text-sm font-bold text-zinc-400 tracking-widest uppercase"><i class="fas fa-stopwatch text-orange-500 mr-2"></i>Test Metronome</h2>
+                    <div id="metro-flash" class="w-3 h-3 rounded-full bg-zinc-800 transition-colors duration-75"></div>
+                </div>
+                
+                <div class="flex items-center justify-between bg-zinc-950 border border-zinc-800 rounded p-2 mb-4">
+                    <button onclick="adjustBPM(-1)" class="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 rounded transition"><i class="fas fa-minus"></i></button>
+                    <div class="text-center">
+                        <div id="bpm-display" class="text-2xl font-bold mono text-white">15</div>
+                        <div class="text-[10px] text-zinc-500 font-bold tracking-widest uppercase">SPM / BPM</div>
                     </div>
-                    <div class="text-xl font-black text-yellow-400" id="zone-3"></div>
+                    <button onclick="adjustBPM(1)" class="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 rounded transition"><i class="fas fa-plus"></i></button>
                 </div>
 
-                <div class="bg-slate-800 rounded-lg p-3 border-l-4 border-orange-500 flex justify-between items-center">
-                    <div>
-                        <p class="text-xs text-orange-400 font-bold uppercase">M.A.P. / VO2 Max (90-100%)</p>
-                        <p class="text-sm text-slate-300">2-3 min intervals</p>
-                    </div>
-                    <div class="text-xl font-black text-orange-400" id="zone-4"></div>
+                <div class="flex space-x-2 mb-4">
+                    <button onclick="setBPM(15)" class="flex-1 bg-zinc-900 border border-zinc-700 text-xs py-1 text-zinc-400 hover:text-orange-500 hover:border-orange-500 rounded">15</button>
+                    <button onclick="setBPM(20)" class="flex-1 bg-zinc-900 border border-zinc-700 text-xs py-1 text-zinc-400 hover:text-orange-500 hover:border-orange-500 rounded">20</button>
+                    <button onclick="setBPM(24)" class="flex-1 bg-zinc-900 border border-zinc-700 text-xs py-1 text-zinc-400 hover:text-orange-500 hover:border-orange-500 rounded">24</button>
+                    <button onclick="setBPM(30)" class="flex-1 bg-zinc-900 border border-zinc-700 text-xs py-1 text-zinc-400 hover:text-orange-500 hover:border-orange-500 rounded">30</button>
                 </div>
 
-                <div class="bg-slate-800 rounded-lg p-3 border-l-4 border-red-500 flex justify-between items-center">
-                    <div>
-                        <p class="text-xs text-red-400 font-bold uppercase">Alactic Sprints (120-150%)</p>
-                        <p class="text-sm text-slate-300">8-10 sec Max Power</p>
-                    </div>
-                    <div class="text-xl font-black text-red-400" id="zone-5"></div>
-                </div>
+                <button id="btn-metro-toggle" onclick="toggleMetronome()" class="w-full bg-zinc-800 hover:bg-zinc-700 border border-zinc-600 text-white font-bold mono py-2 rounded transition-colors flex items-center justify-center">
+                    <i id="metro-icon" class="fas fa-play mr-2 text-emerald-500"></i> <span id="metro-text">START AUDIO PACE</span>
+                </button>
             </div>
         </div>
-    </div>
+
+        <!-- RIGHT PANEL: DYNAMIC TABS -->
+        <div class="lg:col-span-8 tactical-border flex flex-col h-[650px]">
+            
+            <!-- Tabs Header -->
+            <div class="flex border-b border-zinc-800 px-6 pt-6">
+                <button id="tab-test" onclick="switchTab('test')" class="tab-btn active mono text-sm font-bold tracking-widest mr-8 uppercase">Testing Protocol</button>
+                <button id="tab-results" onclick="switchTab('results')" class="tab-btn mono text-sm font-bold tracking-widest uppercase">Zones & Training</button>
+            </div>
+
+            <!-- Tab Content Area -->
+            <div class="p-6 flex-1 overflow-y-auto" id="tab-content-area">
+                
+                <!-- TESTING PROTOCOL CONTENT -->
+                <div id="content-test" class="space-y-6">
+                    <!-- Yosuda Test -->
+                    <div id="test-yosuda" class="space-y-6">
+                        <div class="bg-orange-500/10 border border-orange-500/30 p-4 rounded text-sm">
+                            <strong class="text-orange-500 mono tracking-widest block mb-1">THE POWER PROXY</strong>
+                            <p class="text-zinc-300 leading-relaxed">Lock the magnetic resistance dial at <strong>Level 4</strong>. Because Force is constant, your RPM (Velocity) becomes a direct, mathematically perfect proxy for Watts.</p>
+                        </div>
+                        
+                        <div>
+                            <h3 class="mono text-lg font-bold text-white mb-3 border-b border-zinc-800 pb-2">THE RAMP TEST (UNBROKEN)</h3>
+                            <ul class="space-y-3 text-sm text-zinc-400">
+                                <li class="flex"><i class="fas fa-angle-right text-orange-500 mt-1 mr-3"></i> <span><strong>Stage 1 (Baseline):</strong> Pedal at exactly 40 RPM for 2 minutes. Record Heart Rate.</span></li>
+                                <li class="flex"><i class="fas fa-angle-right text-orange-500 mt-1 mr-3"></i> <span><strong>Stage 2 (Ramp):</strong> Increase to 50 RPM. Hold for 2 minutes. Record HR.</span></li>
+                                <li class="flex"><i class="fas fa-angle-right text-orange-500 mt-1 mr-3"></i> <span><strong>Stage 3+ (Climb):</strong> Continue increasing by 10 RPM every 2 minutes (60, 70, 80...).</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-red-500/10 border-l-4 border-red-500 p-4 rounded">
+                            <h4 class="text-red-500 font-bold mono text-sm tracking-widest mb-1">THE KILL-SWITCH</h4>
+                            <p class="text-zinc-300 text-sm leading-relaxed">The test ends the exact moment your triceps/shoulders lock up and you can no longer sustain the target RPM for the full 2-minute block. <strong>Your MAP is the highest RPM sustained for 2 full minutes.</strong></p>
+                        </div>
+                    </div>
+
+                    <!-- KB Test -->
+                    <div id="test-kb" class="space-y-6 hidden">
+                        <div class="bg-orange-500/10 border border-orange-500/30 p-4 rounded text-sm">
+                            <strong class="text-orange-500 mono tracking-widest block mb-1">THE DISTANCE STANDARD</strong>
+                            <p class="text-zinc-300 leading-relaxed">Men: 20-24kg. Women: 12-16kg. The bell must float to exactly chest height on every rep to ensure distance (Work) is constant. Use the built-in metronome for pace.</p>
+                        </div>
+
+                        <div>
+                            <h3 class="mono text-lg font-bold text-white mb-3 border-b border-zinc-800 pb-2">THE RAMP TEST (UNBROKEN)</h3>
+                            <ul class="space-y-3 text-sm text-zinc-400">
+                                <li class="flex"><i class="fas fa-angle-right text-orange-500 mt-1 mr-3"></i> <span><strong>Stage 1 (15 SPM):</strong> 1 swing every 4 sec. Swing for 2 mins. Record HR.</span></li>
+                                <li class="flex"><i class="fas fa-angle-right text-orange-500 mt-1 mr-3"></i> <span><strong>Stage 2 (20 SPM):</strong> 1 swing every 3 sec. Swing for 2 mins. Record HR.</span></li>
+                                <li class="flex"><i class="fas fa-angle-right text-orange-500 mt-1 mr-3"></i> <span><strong>Stage 3 (24 SPM):</strong> 1 swing every 2.5 sec. Swing for 2 mins. Record HR.</span></li>
+                                <li class="flex"><i class="fas fa-angle-right text-orange-500 mt-1 mr-3"></i> <span><strong>Stage 4 (30 SPM):</strong> 1 swing every 2 sec. Swing for 2 mins. Record HR.</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-red-500/10 border-l-4 border-red-500 p-4 rounded">
+                            <h4 class="text-red-500 font-bold mono text-sm tracking-widest mb-1">THE KILL-SWITCH</h4>
+                            <p class="text-zinc-300 text-sm leading-relaxed">The test ends when technique degrades, grip fails, or you cannot keep pace with the metronome beep. <strong>Your MAP is the highest SPM sustained for 2 full minutes.</strong></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RESULTS & TRAINING PROTOCOLS CONTENT -->
+                <div id="content-results" class="hidden">
+                    
+                    <div id="empty-state" class="flex flex-col items-center justify-center h-full text-center py-20">
+                        <i class="fas fa-calculator text-4xl text-zinc-700 mb-4"></i>
+                        <p class="text-zinc-500 mono">Enter your MAP output and calculate zones to generate training protocols.</p>
+                    </div>
+
+                    <div id="populated-state" class="hidden space-y-8">
+                        
+                        <!-- The Zones -->
+                        <div>
+                            <h3 class="mono text-lg font-bold text-white mb-4 border-b border-zinc-800 pb-2">PHYSIOLOGICAL ZONES</h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="zone-grid">
+                                <!-- JS Injects Zones -->
+                            </div>
+                        </div>
+
+                        <!-- Actionable Protocols -->
+                        <div>
+                            <h3 class="mono text-lg font-bold text-white mb-4 border-b border-zinc-800 pb-2">PRESCRIBED PROTOCOLS</h3>
+                            
+                            <!-- Yosuda Protocols -->
+                            <div id="protocols-yosuda" class="space-y-4">
+                                <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-lg">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <h4 class="text-blue-400 font-bold mono">1. AEROBIC BASE (NO BURNOUT)</h4>
+                                        <span class="text-xs bg-zinc-800 px-2 py-1 rounded text-zinc-400">70% MAP</span>
+                                    </div>
+                                    <p class="text-sm text-zinc-300 mb-2">Expand the gas tank without systemic CNS fatigue. 5-round pacing.</p>
+                                    <div class="bg-zinc-950 p-2 rounded border border-zinc-800 mono text-sm text-orange-400">
+                                        Workout: 4 x 5 minutes @ <span id="y-proto-1"></span> RPM. (Rest 2m)
+                                    </div>
+                                </div>
+
+                                <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-lg">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <h4 class="text-yellow-400 font-bold mono">2. LACTATE CLEARANCE</h4>
+                                        <span class="text-xs bg-zinc-800 px-2 py-1 rounded text-zinc-400">90% / 50%</span>
+                                    </div>
+                                    <p class="text-sm text-zinc-300 mb-2">Force the body to clear acid while still performing work (Scramble recovery).</p>
+                                    <div class="bg-zinc-950 p-2 rounded border border-zinc-800 mono text-sm text-orange-400">
+                                        Workout: 4 Rounds [ 3m @ <span id="y-proto-2a"></span> RPM + 1m @ <span id="y-proto-2b"></span> RPM ]
+                                    </div>
+                                </div>
+
+                                <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-lg border-l-4 border-l-red-500">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <h4 class="text-red-500 font-bold mono">3. ALACTIC SPRINTS (RSA)</h4>
+                                        <span class="text-xs bg-zinc-800 px-2 py-1 rounded text-zinc-400">130%+ MAP</span>
+                                    </div>
+                                    <p class="text-sm text-zinc-300 mb-2">10-second explosive takedowns / sub attempts. Fast-twitch power endurance.</p>
+                                    <div class="bg-zinc-950 p-2 rounded border border-zinc-800 mono text-sm text-red-400">
+                                        Workout: 10 Rounds [ 10s @ <span id="y-proto-3a"></span> RPM + 50s @ <span id="y-proto-3b"></span> RPM ]
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- KB Protocols -->
+                            <div id="protocols-kb" class="space-y-4 hidden">
+                                <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-lg">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <h4 class="text-blue-400 font-bold mono">1. AEROBIC CAPACITY</h4>
+                                        <span class="text-xs bg-zinc-800 px-2 py-1 rounded text-zinc-400">70% MAP</span>
+                                    </div>
+                                    <p class="text-sm text-zinc-300 mb-2">Train slow-twitch fibers to clear waste without crossing the redline.</p>
+                                    <div class="bg-zinc-950 p-2 rounded border border-zinc-800 mono text-sm text-orange-400">
+                                        Workout: 4 x 4 minutes @ <span id="kb-proto-1"></span> SPM. (Rest 2m)
+                                    </div>
+                                </div>
+
+                                <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-lg">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <h4 class="text-yellow-400 font-bold mono">2. LACTATE CLEARANCE</h4>
+                                        <span class="text-xs bg-zinc-800 px-2 py-1 rounded text-zinc-400">100% / 50%</span>
+                                    </div>
+                                    <p class="text-sm text-zinc-300 mb-2">Active recovery. Don't park the bell. Recover while working.</p>
+                                    <div class="bg-zinc-950 p-2 rounded border border-zinc-800 mono text-sm text-orange-400">
+                                        Workout: 5 Rounds [ 1m @ <span id="kb-proto-2a"></span> SPM + 2m @ <span id="kb-proto-2b"></span> SPM ]
+                                    </div>
+                                </div>
+
+                                <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-lg border-l-4 border-l-red-500">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <h4 class="text-red-500 font-bold mono">3. KETTLEBELL A.X.E. (A+A)</h4>
+                                        <span class="text-xs bg-zinc-800 px-2 py-1 rounded text-zinc-400">130%+ MAP</span>
+                                    </div>
+                                    <p class="text-sm text-zinc-300 mb-2">Maximum force production with zero lactic acid buildup.</p>
+                                    <div class="bg-zinc-950 p-2 rounded border border-zinc-800 mono text-sm text-red-400">
+                                        Workout: 10 to 20 Rounds [ 10 Swings @ <span id="kb-proto-3a"></span> SPM + 50s Passive Rest ]
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
 
     <script>
-        let currentMode = 'yosuda';
+        // --- STATE ---
+        let modality = 'yosuda'; // 'yosuda' or 'kb'
+        let currentMAP = 0;
 
-        function setMode(mode) {
-            currentMode = mode;
-            const btnYosuda = document.getElementById('btn-yosuda');
-            const btnKb = document.getElementById('btn-kb');
-            const inputLabel = document.getElementById('input-label');
-            const inputField = document.getElementById('map-input');
+        // --- AUDIO METRONOME LOGIC ---
+        let audioCtx;
+        let metronomeInterval;
+        let isPlaying = false;
+        let bpm = 15;
 
-            if (mode === 'yosuda') {
-                btnYosuda.classList.replace('bg-slate-700', 'bg-blue-600');
-                btnYosuda.classList.replace('border-transparent', 'border-blue-500');
-                btnYosuda.classList.replace('text-slate-300', 'text-white');
-                
-                btnKb.classList.replace('bg-blue-600', 'bg-slate-700');
-                btnKb.classList.replace('border-blue-500', 'border-transparent');
-                btnKb.classList.replace('text-white', 'text-slate-300');
-
-                inputLabel.innerText = "Maximum Aerobic Power (Max RPM)";
-                inputField.placeholder = "e.g., 60";
-            } else {
-                btnKb.classList.replace('bg-slate-700', 'bg-blue-600');
-                btnKb.classList.replace('border-transparent', 'border-blue-500');
-                btnKb.classList.replace('text-slate-300', 'text-white');
-                
-                btnYosuda.classList.replace('bg-blue-600', 'bg-slate-700');
-                btnYosuda.classList.replace('border-blue-500', 'border-transparent');
-                btnYosuda.classList.replace('text-white', 'text-slate-300');
-
-                inputLabel.innerText = "Maximum Aerobic Power (Max SPM)";
-                inputField.placeholder = "e.g., 30";
+        function initAudio() {
+            if(!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
         }
 
-        function calculateZones() {
-            const input = parseFloat(document.getElementById('map-input').value);
-            if (isNaN(input) || input <= 0) {
-                alert("Please enter a valid number.");
+        function playClick() {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.frequency.value = 1200; // High pitch tick
+            osc.type = 'sine';
+            
+            gain.gain.setValueAtTime(1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+            
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + 0.1);
+
+            // Visual Flash
+            const flasher = document.getElementById('metro-flash');
+            flasher.classList.replace('bg-zinc-800', 'bg-orange-500');
+            flasher.style.boxShadow = '0 0 10px #ff6300';
+            setTimeout(() => {
+                flasher.classList.replace('bg-orange-500', 'bg-zinc-800');
+                flasher.style.boxShadow = 'none';
+            }, 100);
+        }
+
+        function toggleMetronome() {
+            initAudio();
+            const btnIcon = document.getElementById('metro-icon');
+            const btnText = document.getElementById('metro-text');
+
+            if(isPlaying) {
+                clearInterval(metronomeInterval);
+                isPlaying = false;
+                btnIcon.className = 'fas fa-play mr-2 text-emerald-500';
+                btnText.innerText = 'START AUDIO PACE';
+            } else {
+                if(audioCtx.state === 'suspended') audioCtx.resume();
+                // Play first click immediately
+                playClick();
+                // Set interval
+                const msPerBeat = 60000 / bpm;
+                metronomeInterval = setInterval(playClick, msPerBeat);
+                
+                isPlaying = true;
+                btnIcon.className = 'fas fa-stop mr-2 text-red-500';
+                btnText.innerText = 'STOP METRONOME';
+            }
+        }
+
+        function updateBPMDisplay() {
+            document.getElementById('bpm-display').innerText = bpm;
+            // Restart if playing to apply new pace
+            if(isPlaying) {
+                toggleMetronome(); // stop
+                toggleMetronome(); // start
+            }
+        }
+
+        function adjustBPM(amount) {
+            bpm += amount;
+            if(bpm < 10) bpm = 10;
+            if(bpm > 60) bpm = 60;
+            updateBPMDisplay();
+        }
+
+        function setBPM(val) {
+            bpm = val;
+            updateBPMDisplay();
+        }
+
+        // --- UI & TAB LOGIC ---
+        function setModality(selected) {
+            modality = selected;
+            
+            // Buttons
+            document.getElementById('btn-yosuda').classList.toggle('active', modality === 'yosuda');
+            document.getElementById('btn-kb').classList.toggle('active', modality === 'kb');
+
+            // Input Labels
+            const unit = modality === 'yosuda' ? 'RPM' : 'SPM';
+            document.getElementById('input-label').innerText = `Max Aerobic Power (${unit})`;
+            document.getElementById('input-unit').innerText = unit;
+            
+            // Metronome visibility
+            const metroCard = document.getElementById('metronome-card');
+            if(modality === 'kb') {
+                metroCard.classList.remove('hidden');
+            } else {
+                metroCard.classList.add('hidden');
+                if(isPlaying) toggleMetronome(); // Stop metronome if switching away
+            }
+
+            // Test Content Visibility
+            document.getElementById('test-yosuda').classList.toggle('hidden', modality !== 'yosuda');
+            document.getElementById('test-kb').classList.toggle('hidden', modality !== 'kb');
+
+            // Training Protocols Visibility
+            document.getElementById('protocols-yosuda').classList.toggle('hidden', modality !== 'yosuda');
+            document.getElementById('protocols-kb').classList.toggle('hidden', modality !== 'kb');
+
+            // Reset Calculator
+            document.getElementById('map-input').value = '';
+            switchTab('test');
+        }
+
+        function switchTab(tabId) {
+            document.getElementById('tab-test').classList.toggle('active', tabId === 'test');
+            document.getElementById('tab-results').classList.toggle('active', tabId === 'results');
+
+            document.getElementById('content-test').classList.toggle('hidden', tabId !== 'test');
+            document.getElementById('content-results').classList.toggle('hidden', tabId !== 'results');
+        }
+
+        // --- CALCULATION LOGIC ---
+        function calculateMAP() {
+            const inputVal = parseFloat(document.getElementById('map-input').value);
+            if(isNaN(inputVal) || inputVal <= 0) {
+                alert("Please enter a valid MAP output.");
                 return;
             }
+            currentMAP = inputVal;
+            const unit = modality === 'yosuda' ? 'RPM' : 'SPM';
 
-            const unit = currentMode === 'yosuda' ? 'RPM' : 'SPM';
+            // Generate Zones
+            const zones = [
+                { name: 'RECOVERY', pct: '60-70%', min: 0.60, max: 0.70, color: 'text-zinc-400', border: 'border-zinc-600' },
+                { name: 'AEROBIC', pct: '70-80%', min: 0.70, max: 0.80, color: 'text-blue-400', border: 'border-blue-500' },
+                { name: 'THRESHOLD', pct: '80-90%', min: 0.80, max: 0.90, color: 'text-yellow-400', border: 'border-yellow-500' },
+                { name: 'V02 MAX', pct: '90-100%', min: 0.90, max: 1.00, color: 'text-orange-400', border: 'border-orange-500' }
+            ];
 
-            // Calculations based on % of MAP
-            const z1_min = Math.round(input * 0.60);
-            const z1_max = Math.round(input * 0.70);
-            
-            const z2_min = Math.round(input * 0.70);
-            const z2_max = Math.round(input * 0.80);
-            
-            const z3_min = Math.round(input * 0.80);
-            const z3_max = Math.round(input * 0.90);
-            
-            const z4_min = Math.round(input * 0.90);
-            const z4_max = Math.round(input * 1.00);
+            let html = '';
+            zones.forEach(z => {
+                let minVal = Math.round(currentMAP * z.min);
+                let maxVal = Math.round(currentMAP * z.max);
+                html += `
+                <div class="bg-zinc-900 border border-zinc-800 p-3 rounded-lg border-t-2 ${z.border}">
+                    <div class="text-[10px] font-bold text-zinc-500 tracking-widest uppercase mb-1">${z.name}</div>
+                    <div class="text-xl font-bold mono ${z.color}">${minVal}-${maxVal}</div>
+                    <div class="text-[10px] text-zinc-500 mt-1">${z.pct}</div>
+                </div>`;
+            });
+            document.getElementById('zone-grid').innerHTML = html;
 
-            const z5_min = Math.round(input * 1.20);
-            const z5_max = Math.round(input * 1.50);
+            // Populate Protocols Math
+            if(modality === 'yosuda') {
+                document.getElementById('y-proto-1').innerText = Math.round(currentMAP * 0.70);
+                document.getElementById('y-proto-2a').innerText = Math.round(currentMAP * 0.90);
+                document.getElementById('y-proto-2b').innerText = Math.round(currentMAP * 0.50);
+                document.getElementById('y-proto-3a').innerText = Math.round(currentMAP * 1.30) + '+';
+                document.getElementById('y-proto-3b').innerText = Math.round(currentMAP * 0.30);
+            } else {
+                document.getElementById('kb-proto-1').innerText = Math.round(currentMAP * 0.70);
+                document.getElementById('kb-proto-2a').innerText = Math.round(currentMAP * 1.00);
+                document.getElementById('kb-proto-2b').innerText = Math.round(currentMAP * 0.50);
+                document.getElementById('kb-proto-3a').innerText = Math.round(currentMAP * 1.30) + '+';
+            }
 
-            document.getElementById('zone-1').innerText = `${z1_min}-${z1_max} ${unit}`;
-            document.getElementById('zone-2').innerText = `${z2_min}-${z2_max} ${unit}`;
-            document.getElementById('zone-3').innerText = `${z3_min}-${z3_max} ${unit}`;
-            document.getElementById('zone-4').innerText = `${z4_min}-${z4_max} ${unit}`;
-            document.getElementById('zone-5').innerText = `${z5_min}-${z5_max} ${unit}`;
-
-            document.getElementById('results').classList.remove('hidden');
+            // Show Results View
+            document.getElementById('empty-state').classList.add('hidden');
+            document.getElementById('populated-state').classList.remove('hidden');
+            switchTab('results');
         }
+
     </script>
 </body>
 </html>
