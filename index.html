@@ -180,7 +180,7 @@
         </div>
 
         <!-- RIGHT PANEL: DYNAMIC TABS -->
-        <div class="lg:col-span-8 tactical-border flex flex-col h-[650px]">
+        <div class="lg:col-span-8 tactical-border flex flex-col h-[700px]">
             
             <!-- Tabs Header -->
             <div class="flex border-b border-zinc-800 px-6 pt-6">
@@ -196,8 +196,8 @@
                     <!-- Yosuda Test -->
                     <div id="test-yosuda" class="space-y-6">
                         <div class="bg-orange-500/10 border border-orange-500/30 p-4 rounded text-sm">
-                            <strong class="text-orange-500 mono tracking-widest block mb-1">THE POWER PROXY</strong>
-                            <p class="text-zinc-300 leading-relaxed">Lock the magnetic resistance dial at <strong>Level 4</strong>. Because Force is constant, your RPM (Velocity) becomes a direct, mathematically perfect proxy for Watts.</p>
+                            <strong class="text-orange-500 mono tracking-widest block mb-1">THE POWER PROXY (LEVEL 10)</strong>
+                            <p class="text-zinc-300 leading-relaxed">Lock the magnetic resistance dial permanently at <strong>Level 10</strong>. Because Force is constant, your RPM (Velocity) becomes a direct, mathematically perfect proxy for Watts.</p>
                         </div>
                         
                         <div>
@@ -205,13 +205,19 @@
                             <ul class="space-y-3 text-sm text-zinc-400">
                                 <li class="flex"><i class="fas fa-angle-right text-orange-500 mt-1 mr-3"></i> <span><strong>Stage 1 (Baseline):</strong> Pedal at exactly 40 RPM for 2 minutes. Record Heart Rate.</span></li>
                                 <li class="flex"><i class="fas fa-angle-right text-orange-500 mt-1 mr-3"></i> <span><strong>Stage 2 (Ramp):</strong> Increase to 50 RPM. Hold for 2 minutes. Record HR.</span></li>
-                                <li class="flex"><i class="fas fa-angle-right text-orange-500 mt-1 mr-3"></i> <span><strong>Stage 3+ (Climb):</strong> Continue increasing by 10 RPM every 2 minutes (60, 70, 80...).</span></li>
+                                <li class="flex"><i class="fas fa-angle-right text-orange-500 mt-1 mr-3"></i> <span><strong>Stage 3+ (Climb):</strong> Continue increasing by 10 RPM every 2 minutes.</span></li>
                             </ul>
                         </div>
 
                         <div class="bg-red-500/10 border-l-4 border-red-500 p-4 rounded">
-                            <h4 class="text-red-500 font-bold mono text-sm tracking-widest mb-1">THE KILL-SWITCH</h4>
-                            <p class="text-zinc-300 text-sm leading-relaxed">The test ends the exact moment your triceps/shoulders lock up and you can no longer sustain the target RPM for the full 2-minute block. <strong>Your MAP is the highest RPM sustained for 2 full minutes.</strong></p>
+                            <h4 class="text-red-500 font-bold mono text-sm tracking-widest mb-1">THE KILL-SWITCH MARKERS</h4>
+                            <p class="text-zinc-300 text-sm leading-relaxed mb-2">The test ends immediately if any of the following biological or mechanical failures occur:</p>
+                            <ul class="text-zinc-300 text-sm leading-relaxed list-disc pl-5 mb-2">
+                                <li><strong>Plank / Posture Failure:</strong> Core collapses or spine sags.</li>
+                                <li><strong>Technique Degradation:</strong> Wild side-to-side hip shifting to force the pedals.</li>
+                                <li><strong>Heart Rate Skyrockets:</strong> The lactate threshold is breached violently.</li>
+                            </ul>
+                            <p class="text-zinc-300 text-sm leading-relaxed"><strong>Your MAP is the highest RPM sustained for 2 full minutes before these markers hit.</strong></p>
                         </div>
                     </div>
 
@@ -233,8 +239,8 @@
                         </div>
 
                         <div class="bg-red-500/10 border-l-4 border-red-500 p-4 rounded">
-                            <h4 class="text-red-500 font-bold mono text-sm tracking-widest mb-1">THE KILL-SWITCH</h4>
-                            <p class="text-zinc-300 text-sm leading-relaxed">The test ends when technique degrades, grip fails, or you cannot keep pace with the metronome beep. <strong>Your MAP is the highest SPM sustained for 2 full minutes.</strong></p>
+                            <h4 class="text-red-500 font-bold mono text-sm tracking-widest mb-1">THE KILL-SWITCH MARKERS</h4>
+                            <p class="text-zinc-300 text-sm leading-relaxed">The test ends when technique degrades (using the back instead of the hips), grip fails, or you cannot keep pace with the metronome beep. <strong>Your MAP is the highest SPM sustained for 2 full minutes.</strong></p>
                         </div>
                     </div>
                 </div>
@@ -343,7 +349,7 @@
 
     <script>
         // --- STATE ---
-        let modality = 'yosuda'; // 'yosuda' or 'kb'
+        let currentMode = 'yosuda';
         let currentMAP = 0;
 
         // --- AUDIO METRONOME LOGIC ---
@@ -365,7 +371,7 @@
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             
-            osc.frequency.value = 1200; // High pitch tick
+            osc.frequency.value = 1200;
             osc.type = 'sine';
             
             gain.gain.setValueAtTime(1, audioCtx.currentTime);
@@ -396,12 +402,9 @@
                 btnText.innerText = 'START AUDIO PACE';
             } else {
                 if(audioCtx.state === 'suspended') audioCtx.resume();
-                // Play first click immediately
                 playClick();
-                // Set interval
                 const msPerBeat = 60000 / bpm;
                 metronomeInterval = setInterval(playClick, msPerBeat);
-                
                 isPlaying = true;
                 btnIcon.className = 'fas fa-stop mr-2 text-red-500';
                 btnText.innerText = 'STOP METRONOME';
@@ -410,10 +413,9 @@
 
         function updateBPMDisplay() {
             document.getElementById('bpm-display').innerText = bpm;
-            // Restart if playing to apply new pace
             if(isPlaying) {
-                toggleMetronome(); // stop
-                toggleMetronome(); // start
+                toggleMetronome(); 
+                toggleMetronome(); 
             }
         }
 
@@ -430,36 +432,30 @@
         }
 
         // --- UI & TAB LOGIC ---
-        function setModality(selected) {
-            modality = selected;
+        function setModality(mode) {
+            currentMode = mode;
             
-            // Buttons
-            document.getElementById('btn-yosuda').classList.toggle('active', modality === 'yosuda');
-            document.getElementById('btn-kb').classList.toggle('active', modality === 'kb');
+            document.getElementById('btn-yosuda').classList.toggle('active', mode === 'yosuda');
+            document.getElementById('btn-kb').classList.toggle('active', mode === 'kb');
 
-            // Input Labels
-            const unit = modality === 'yosuda' ? 'RPM' : 'SPM';
+            const unit = mode === 'yosuda' ? 'RPM' : 'SPM';
             document.getElementById('input-label').innerText = `Max Aerobic Power (${unit})`;
             document.getElementById('input-unit').innerText = unit;
             
-            // Metronome visibility
             const metroCard = document.getElementById('metronome-card');
-            if(modality === 'kb') {
+            if(mode === 'kb') {
                 metroCard.classList.remove('hidden');
             } else {
                 metroCard.classList.add('hidden');
-                if(isPlaying) toggleMetronome(); // Stop metronome if switching away
+                if(isPlaying) toggleMetronome();
             }
 
-            // Test Content Visibility
-            document.getElementById('test-yosuda').classList.toggle('hidden', modality !== 'yosuda');
-            document.getElementById('test-kb').classList.toggle('hidden', modality !== 'kb');
+            document.getElementById('test-yosuda').classList.toggle('hidden', mode !== 'yosuda');
+            document.getElementById('test-kb').classList.toggle('hidden', mode !== 'kb');
 
-            // Training Protocols Visibility
-            document.getElementById('protocols-yosuda').classList.toggle('hidden', modality !== 'yosuda');
-            document.getElementById('protocols-kb').classList.toggle('hidden', modality !== 'kb');
+            document.getElementById('protocols-yosuda').classList.toggle('hidden', mode !== 'yosuda');
+            document.getElementById('protocols-kb').classList.toggle('hidden', mode !== 'kb');
 
-            // Reset Calculator
             document.getElementById('map-input').value = '';
             switchTab('test');
         }
@@ -480,9 +476,7 @@
                 return;
             }
             currentMAP = inputVal;
-            const unit = modality === 'yosuda' ? 'RPM' : 'SPM';
 
-            // Generate Zones
             const zones = [
                 { name: 'RECOVERY', pct: '60-70%', min: 0.60, max: 0.70, color: 'text-zinc-400', border: 'border-zinc-600' },
                 { name: 'AEROBIC', pct: '70-80%', min: 0.70, max: 0.80, color: 'text-blue-400', border: 'border-blue-500' },
@@ -503,8 +497,7 @@
             });
             document.getElementById('zone-grid').innerHTML = html;
 
-            // Populate Protocols Math
-            if(modality === 'yosuda') {
+            if(currentMode === 'yosuda') {
                 document.getElementById('y-proto-1').innerText = Math.round(currentMAP * 0.70);
                 document.getElementById('y-proto-2a').innerText = Math.round(currentMAP * 0.90);
                 document.getElementById('y-proto-2b').innerText = Math.round(currentMAP * 0.50);
@@ -517,12 +510,10 @@
                 document.getElementById('kb-proto-3a').innerText = Math.round(currentMAP * 1.30) + '+';
             }
 
-            // Show Results View
             document.getElementById('empty-state').classList.add('hidden');
             document.getElementById('populated-state').classList.remove('hidden');
             switchTab('results');
         }
-
     </script>
 </body>
 </html>
